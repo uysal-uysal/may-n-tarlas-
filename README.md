@@ -6,7 +6,7 @@
 
 
 ###### features to be added soon:
-###### take username interface and hold this users point, game time
+###### take username with interface and hold this users point, game time
 ###### leaderboard
 ###### adjustable size of grid
 ###### adjustable mines
