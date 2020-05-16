@@ -1,5 +1,6 @@
 # mayin-tarlasi 
 #### if you want to play game, you can downlaod Minesweeper.exe Enjoy!
+###### mines are yellow for easy testable
 ###### -all of things impelemented with java graphics library  
 ######
 ###### -added func:  
