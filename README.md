@@ -11,5 +11,5 @@
 ######
 ###### bugs:
 ###### if you continue the game and lose again, lose message are not visible
-
+###### continue button coordinates
 
