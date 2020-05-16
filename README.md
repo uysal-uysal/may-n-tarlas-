@@ -1,5 +1,5 @@
 # mayin-tarlasi 
-
+#### if you want to play game, you can downlaod Minesweeper.exe Enjoy!
 ###### -all of things impelemented with java graphics library  
 ######
 ###### -added func:  
