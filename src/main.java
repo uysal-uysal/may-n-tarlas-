@@ -9,16 +9,16 @@ public class main implements Runnable {
 		new Thread(new main()).start();
 
 	}
-
+	
 	@Override
 	public void run() {
-	
+		
 		while (true) {
 			guiComp.repaint();
+			
 			if (guiComp.isrestarted == false) {
 				guiComp.isWon();
 			}
 		}
-		
 	}
 }

@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.util.*;
+import java.util.Timer;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -9,6 +10,8 @@ public class gui extends JFrame {
 
 	Random random = new Random();
 	Date startedDate = new Date();
+	Timer timer = new Timer();
+
 	
 	//how many mines at the row and column
 	public int width = 24;
@@ -17,6 +20,7 @@ public class gui extends JFrame {
 	//spacing between of boxes
 	int buttonGridSpacing = 7;
 	public int difficult = 25;
+	public int continueMines = 30;
 
 	
 	public int mouseX = -100;
@@ -49,11 +53,14 @@ public class gui extends JFrame {
 	public boolean win = false;
 	public boolean lose = false;
 	public boolean isrestarted = false;
+	public boolean iscontinue = false;
 	
 
 	int neighs = 0;
 	public int point = 0;
 	public int currentMines = 0;
+	public int releasedClean = 0;
+	public int currentFlags = 95;
 	
 	//arrays of all boxes, mines, flagged mines and released mines
 	int[][] mines = new int[width][height];
@@ -65,6 +72,7 @@ public class gui extends JFrame {
 		
 		draw();
 		findMines();
+
 		
 		this.setTitle("Mayın Tarlası");
 		this.setSize(1920, 1080);
@@ -82,6 +90,7 @@ public class gui extends JFrame {
 		this.addMouseListener(click);
 
 	}
+
 	
 	public class Board extends JPanel {
 		
@@ -199,12 +208,20 @@ public class gui extends JFrame {
 				graph.setFont(new Font("Thoma" , Font.BOLD, 92));
 				graph.drawString("You Win!", 754, 555);
 			}
-			if (lose ) {
+			if (lose) {
 				graph.setColor(Color.red);
 				graph.fillRect(0, 87, 1920, 1080);
 				graph.setColor(Color.white);
 				graph.setFont(new Font("Thoma" , Font.BOLD, 92));
 				graph.drawString("You Lose!", 754, 555);
+				graph.setFont(new Font("Thoma", Font.BOLD, 32));
+				graph.setColor(Color.white);
+				graph.drawString("You wanna continue ?", 759, 675);
+				graph.setColor(Color.green);
+				graph.fillRect(1100, 635, 50, 50);
+				graph.setColor(Color.black);
+				graph.setFont(new Font("Thoma", Font.BOLD, 24));
+				graph.drawString(" Yes?", 1094, 668);
 			}
 
 			
@@ -228,7 +245,13 @@ public class gui extends JFrame {
 			graph.setFont(new Font("Thoma", Font.BOLD, 36));
 			graph.drawString("Current Mines: ", counterX-300, counterY+57);
 			graph.drawString(Integer.toString(currentMines), counterX-45, counterY+57);
-		
+			
+			//flag counter
+			graph.setColor(Color.white);
+			graph.setFont(new Font("Thoma", Font.BOLD, 36));
+			graph.drawString("Current Flags: ", counterX+225, counterY+57);
+			graph.drawString(Integer.toString(currentFlags), counterX+495, counterY+57);
+
 			
 			//calculate your point with flagged mine boxes and print with win or lose message
 			if (lose || win) {
@@ -236,6 +259,9 @@ public class gui extends JFrame {
 				graph.setFont(new Font("Thoma", Font.BOLD, 36));
 				graph.drawString("Your point : ", 755, 625);
 				graph.drawString(Integer.toString(point), 983, 627);
+				graph.setFont(new Font("Thoma", Font.BOLD, 26));
+				graph.drawString("Your play time : ", 755, 718);
+				graph.drawString(Integer.toString(sec), 1005, 720);
 			}
 			
 			
@@ -265,7 +291,6 @@ public class gui extends JFrame {
 		@Override
 		//get the cursor's x-y location
 		public void mouseMoved(MouseEvent e) {
-		
 			mouseX = e.getX();
 			mouseY = e.getY();
 		}
@@ -282,10 +307,10 @@ public class gui extends JFrame {
 			//if you flagged box of contain mine your point increases but if you reflag the box your point will be decreases
 			//
 			if (boxX() != -1 && boxY() != -1 ) {
-				System.out.println(boxX()+ "," + boxY() + "," + "number of neighbours: " + neighbours[boxX()][boxY()]);
 				
 				if (flag == true && released[boxX()][boxY()] == false) {
-					if (flagged[boxX()][boxY()] == false) {
+					if (flagged[boxX()][boxY()] == false && currentFlags > 0) {
+						currentFlags--;
 						if (mines[boxX()][boxY()] == 1) {
 							currentMines--;
 						}
@@ -294,6 +319,7 @@ public class gui extends JFrame {
 					else {
 						if (flagged[boxX()][boxY()] == true) {
 							currentMines++;
+							currentFlags++;
 							point--;
 						}
 						flagged[boxX()][boxY()] = false;
@@ -327,24 +353,36 @@ public class gui extends JFrame {
 			
 			//if clicked easy-mid-hard button change game terms. for example if click at easy button grid is 9x9, estimated mines 10-17
 			if (inEasy()) {
+				currentFlags = 25;
+				continueMines = 5;
 				difficult = 15;
 				width = 9;
 				height = 9;
 				restart();
 			}
 			if (inMid()) {
+				currentFlags = 60;
+				continueMines = 25;
 				width = 16 ;
 				height = 9;
 				difficult = 35;
 				restart();
 			}
 			if (inHard()) {
+				currentFlags = 95;
+				continueMines = 30;
 				width = 24;
 				height = 12;
-				difficult = 48;
+				difficult = 30;
 				restart();
 			}
-			
+			if (inContinue()) {
+				isHappy = true;
+				iscontinue = true;
+				isWon();
+				continueGame();
+				
+			}
 		}
 		@Override
 		public void mouseEntered(MouseEvent e) {
@@ -486,19 +524,41 @@ public class gui extends JFrame {
 		return false;
 	}
 	
+	public boolean inContinue() {
+		if (mouseX < 1154 && mouseX > 1104 && mouseY < 710 && mouseY > 660 ) {
+			return true;
+		}
+		return false;
+	}
+	
 	//if you released the mine box you lose, if you flagged all mines box you won. isWon checking this
 	public void isWon() {
 		
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				if (released[i][j] == true && mines[i][j] == 1) {
-					lose = true;
-					isHappy = false;
+		if (iscontinue == false) {
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					if (released[i][j] == true && mines[i][j] == 1) {
+							lose = true;
+							isHappy = false;
+					}
 				}
 			}
 		}
 		
-		if (currentMines == 0 ) {
+		if (iscontinue == true) {
+			lose = false;
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					if (released[i][j] == true && mines[i][j] == 1) {
+							isHappy = false;
+							
+					}
+				}
+			}
+		}
+
+		
+		if (currentMines == 0 || releasedBoxes() + allMines() == width*height) {
 			win = true;
 		}
 	}
@@ -519,7 +579,6 @@ public class gui extends JFrame {
 	
 	//if you click a box, this box released and saved the array of released with x and y cord
 	public int releasedBoxes() {
-		
 		int released = 0;
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -530,6 +589,38 @@ public class gui extends JFrame {
 		}
 		return released;
 	}
+	
+	public int releasedCleanBoxes() {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				if (this.released[i][j] == true && mines[i][j] == 0 ) {
+					releasedClean++;
+				}
+			}
+		}
+		return releasedClean;
+	}
+	
+	public void continueGame () {
+		
+
+		
+		int i = random.nextInt(width);
+		int j = random.nextInt(height);
+		
+		for (int k = 0; k < continueMines; k++) {
+
+			if (mines[i][j] == 0 && released[i][j] == false) {
+				mines[i][j] = 1;
+				currentMines++;
+			}
+			i = random.nextInt(width);
+			j = random.nextInt(height);
+		}
+		lose = false;
+		
+	}
+	
 	
 	//if you clicked to smile, game was restart and all of thing back to default value
 	public void restart() {
@@ -545,10 +636,7 @@ public class gui extends JFrame {
 		draw();
 		findMines();
 		isrestarted = false;
+		iscontinue = false;
 
 	}
 }
-
-
-
-
