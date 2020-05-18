@@ -7,7 +7,7 @@
 ######  restart method, flag the boxes, change difficult, check win-lose status, you can continue game but mines increases, users point and play time  
 ######
 ###### features to be added soon:
-###### take username with interface, hold this users point and this users win-lose ratio
+###### take username with interface, hold this users win-lose ratio
 ###### adjustable size of grid and mines 
 ######
 ###### bugs:
